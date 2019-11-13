@@ -415,7 +415,7 @@ class Player(QMainWindow):  # Main window
             self.added_flag = True
             self.favourite.setIcon(QIcon("icons\\favourite.png"))
             self.favourite.setIconSize(QSize(35, 35))
-            add_to_database()
+            add_to_database("ebalopal")
 
     def change_time(self, position, send_type=False):  # Change song time_now
         if not send_type:
