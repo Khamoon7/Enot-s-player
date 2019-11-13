@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from Database import *  # Connect player with database
 
 
 def main():
@@ -24,6 +25,7 @@ class Player(QMainWindow):  # Main window
         self.flag = True  # Check song playing
         self.songs = []  # Songs list
         self.repeat_flag = False  # Repeat mode check
+        self.added_flag = False  # Check music in favourite
 
         self.setFixedSize(1100, 500)  # Main window
         self.center()
@@ -66,17 +68,17 @@ class Player(QMainWindow):  # Main window
     def logo(self):  # Creation logo
         self.image = QPushButton(self)
         self.image.resize(300, 300)
-        self.image.move(570, 50)
+        self.image.move(590, 50)
         self.image.setIcon(QIcon("icons\\good.jpg"))
         self.image.setIconSize(QSize(300, 300))
 
     def lists(self):  # Function that creates lists with songs
         self.list_of_folder = QListWidget(self)  # List of Folders with .mp3 files
-        self.list_of_folder.setGeometry(QRect(0, 20, 230, 500))
+        self.list_of_folder.setGeometry(QRect(0, 20, 210, 500))
         self.list_of_folder.currentTextChanged.connect(self.getfiles)
 
         self.list_of_songs = QListWidget(self)  # List of .mp3 files in each Folder
-        self.list_of_songs.setGeometry(QRect(230, 20, 230, 500))
+        self.list_of_songs.setGeometry(QRect(210, 20, 210, 500))
         self.list_of_songs.currentTextChanged.connect(self.play_from_list)
 
     def time(self):  # Create time labels
@@ -158,6 +160,13 @@ class Player(QMainWindow):  # Main window
         self.repeat.setIcon(QIcon("icons\\non-replay.png"))
         self.repeat.setIconSize(QSize(35, 35))
         self.repeat.clicked.connect(self.repeat_func)
+
+        self.favourite = QPushButton(self)  # Add to favourite button
+        self.favourite.resize(35, 35)
+        self.favourite.move(435, 440)
+        self.favourite.setIcon(QIcon("icons\\non_favourite.png"))
+        self.favourite.setIconSize(QSize(35, 35))
+        self.favourite.clicked.connect(self.add_to_favourite)
 
     def menubar_create(self):  # Create menubar
         menubar = self.menuBar()
@@ -396,6 +405,17 @@ class Player(QMainWindow):  # Main window
             self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
             self.repeat.setIcon(QIcon("icons\\replay.png"))
             self.repeat.setIconSize(QSize(35, 35))
+
+    def add_to_favourite(self):
+        if self.added_flag:
+            self.added_flag = False
+            self.favourite.setIcon(QIcon("icons\\non_favourite.png"))
+            self.favourite.setIconSize(QSize(35, 35))
+        else:
+            self.added_flag = True
+            self.favourite.setIcon(QIcon("icons\\favourite.png"))
+            self.favourite.setIconSize(QSize(35, 35))
+            add_to_database()
 
     def change_time(self, position, send_type=False):  # Change song time_now
         if not send_type:
