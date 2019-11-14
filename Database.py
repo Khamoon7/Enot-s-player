@@ -6,19 +6,33 @@ user = getpass.getuser()
 count = 1
 
 
+def get_music():
+    music_list = database.execute("""SELECT music FROM users_music WHERE username = ?""", (user,)).fetchall()
+    music_list = music_list[0][0].split(":")
+    return music_list
+
 def add_user():
-    database.execute("""INSERT INTO users_music VALUES(? ,"Rishat", "Gayporn.mp3:123")""", (count,))
-    database.commit()
+    user_now = database.execute("""SELECT username FROM users_music WHERE username = ?""", (user,)).fetchall()[0][0]
+    if user_now:
+        pass
+    else:
+        database.execute("""INSERT INTO users_music VALUES(? , ?, "")""", (count, user))
+        database.commit()
+
 
 def add_to_database(song):
-    database.execute("""UPDATE users_music SET music = ? WHERE username = ?""", (song, user))
+    music_list = database.execute("""SELECT music FROM users_music WHERE username = ?""", (user,)).fetchall()
+    music_list = music_list[0][0].split(":")
+    music_list.append(song)
+    database.execute("""UPDATE users_music SET music = ? WHERE username = ?""", (":".join(music_list), user))
     database.commit()
-    print(database.execute("""SELECT * FROM users_music WHERE username = ?""", (user,)).fetchall())
+    print(database.execute("""SELECT * FROM users_music""").fetchall())
 
 
 def remove_from_database(song):
-    music_list = database.execute("""SELECT music FROM users_music WHERE username = ?""", (user,))
-
-    database.execute("""UPDATE users_music SET music = ? WHERE username = ?""", (song, user))
+    music_list = database.execute("""SELECT music FROM users_music WHERE username = ?""", (user,)).fetchall()
+    music_list = music_list[0][0].split(":")
+    music_list.remove(song)
+    database.execute("""UPDATE users_music SET music = ? WHERE username = ?""", (":".join(music_list), user))
     database.commit()
-    print(database.execute("""SELECT * FROM users_music WHERE username = ?""", (user,)).fetchall())
+    print(database.execute("""SELECT * FROM users_music""").fetchall())

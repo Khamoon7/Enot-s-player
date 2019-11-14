@@ -50,6 +50,8 @@ class Player(QMainWindow):  # Main window
 
         self.find_all_func()  # Show music
 
+        add_user()
+
         self.show()
 
     def center(self):  # Set window in the center of monitor
@@ -277,8 +279,11 @@ class Player(QMainWindow):  # Main window
         self.list_of_songs.clear()
         self.list_of_folder.clear()
 
+
         for i in self.folders:
             self.list_of_folder.addItem(i.strip())
+
+        self.list_of_folder.addItem("Favourite tracks")
 
     def getfiles(self):  # Function of adding songs to list
         self.flag = False
@@ -286,12 +291,15 @@ class Player(QMainWindow):  # Main window
         self.list_of_songs.clear()
         try:
             name_folder = self.list_of_folder.currentItem().text()
-
-            for i in self.files:
-                folder_1 = i.split('\\')[-2]
-                if name_folder == folder_1.strip():
-                    self.songs.append(i)
+            if name_folder == "Favourite tracks":
+                for i in get_music():
                     self.list_of_songs.addItem(i.split('\\')[-1])
+            else:
+                for i in self.files:
+                    folder_1 = i.split('\\')[-2]
+                    if name_folder == folder_1.strip():
+                        self.songs.append(i)
+                        self.list_of_songs.addItem(i.split('\\')[-1])
 
         except AttributeError:
             pass
@@ -411,11 +419,12 @@ class Player(QMainWindow):  # Main window
             self.added_flag = False
             self.favourite.setIcon(QIcon("icons\\non_favourite.png"))
             self.favourite.setIconSize(QSize(35, 35))
+            remove_from_database(self.player.currentMedia().canonicalRequest().url().fileName())
         else:
             self.added_flag = True
             self.favourite.setIcon(QIcon("icons\\favourite.png"))
             self.favourite.setIconSize(QSize(35, 35))
-            add_to_database("ebalopal")
+            add_to_database(self.player.currentMedia().canonicalRequest().url().fileName())
 
     def change_time(self, position, send_type=False):  # Change song time_now
         if not send_type:
