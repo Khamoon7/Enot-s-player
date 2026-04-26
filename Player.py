@@ -294,12 +294,14 @@ class Player(QMainWindow):  # Main window
             if name_folder == "Favourite tracks":
                 for i in get_music():
                     self.list_of_songs.addItem(i.split('\\')[-1])
+                    self.songs.append(i)
             else:
                 for i in self.files:
                     folder_1 = i.split('\\')[-2]
                     if name_folder == folder_1.strip():
                         self.songs.append(i)
                         self.list_of_songs.addItem(i.split('\\')[-1])
+                print(self.songs)
 
         except AttributeError:
             pass
@@ -350,10 +352,18 @@ class Player(QMainWindow):  # Main window
 
     def play_from_list(self):  # Play songs from folder
         if self.flag:
+            song = self.player.currentMedia().canonicalRequest().url().fileName()
+            if check_in_database(song):
+                self.favourite.setIcon(QIcon("icons\\non_favourite.png"))
+                self.favourite.setIconSize(QSize(35, 35))
+            else:
+                self.favourite.setIcon(QIcon("icons\\favourite.png"))
+                self.favourite.setIconSize(QSize(35, 35))
             self.playlist.clear()
             selected_song = self.list_of_songs.currentRow()
             songs = self.songs[selected_song:] + self.songs[:selected_song]
             for i in songs:
+                print(i)
                 media = QUrl.fromLocalFile(i)
                 content = QMediaContent(media)
                 self.playlist.addMedia(content)
@@ -415,16 +425,15 @@ class Player(QMainWindow):  # Main window
             self.repeat.setIconSize(QSize(35, 35))
 
     def add_to_favourite(self):
-        if self.added_flag:
-            self.added_flag = False
+        song = self.player.currentMedia().canonicalRequest().url().fileName()
+        if check_in_database(song):
             self.favourite.setIcon(QIcon("icons\\non_favourite.png"))
             self.favourite.setIconSize(QSize(35, 35))
-            remove_from_database(self.player.currentMedia().canonicalRequest().url().fileName())
+            remove_from_database(song)
         else:
-            self.added_flag = True
             self.favourite.setIcon(QIcon("icons\\favourite.png"))
             self.favourite.setIconSize(QSize(35, 35))
-            add_to_database(self.player.currentMedia().canonicalRequest().url().fileName())
+            add_to_database(song)
 
     def change_time(self, position, send_type=False):  # Change song time_now
         if not send_type:
